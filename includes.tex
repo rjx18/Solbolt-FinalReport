@@ -20,12 +20,13 @@
 \usepackage[a4paper,hmargin=2.8cm,vmargin=2.0cm,includeheadfoot]{geometry}
 \usepackage{textpos}
 \usepackage[numbers]{natbib} 
-\usepackage{tabularx,longtable,multirow,subfigure,caption}%hangcaption
+\usepackage{tabularx,longtable,multirow,caption}%hangcaption
 \usepackage{fncylab} %formatting of labels
 \usepackage{fancyhdr} % page layout
 \usepackage{url} % URLs
 \usepackage[english]{babel}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{graphicx}
 \usepackage{dsfont}
 \usepackage{epstopdf} % automatically replace .eps with .pdf in graphics
@@ -38,8 +39,24 @@
 \usepackage{tabu} %requires array.
 \usepackage{booktabs}
 \usepackage{listings}
-\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
 \usepackage{amsthm}
+\usepackage{breqn}
+\usepackage{pgfplots}
+\usepackage{subfig}
+\usepackage[figuresright]{rotating}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows, patterns, chains,shadows.blur}
+\usepgfplotslibrary{fillbetween}
+\tikzset{
+    ->, % makes the edges directed
+    node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+    every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+    initial text=$ $, % sets the text that appears on the start arrow
+  }
+
+
+\pgfplotsset{width=10cm,compat=1.9}
 
 \hypersetup{pdftitle={},
   pdfsubject={}, 
@@ -192,6 +209,51 @@
 	morestring=[b]"
 }
 
+\lstdefinelanguage{JavaScript}{
+  keywords={UPDATE_CONTRACT, UPDATE_ALL_CONTRACTS, break, case, catch, const, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with, undefined, void},
+  keywordstyle=\color{blue}\bfseries,
+  morekeywords=[3]{createContext, reducer, updateContract, updateAllContracts},
+  keywordstyle=[3]\color{YellowOrange}\bfseries,	
+  morekeywords=[4]{ContractsContext, type, payload, state, filename, name, contract, contracts, fileName, contractName, ast, name},
+  keywordstyle=[4]\color{RoyalBlue}\bfseries,
+  ndkeywords={class, PayloadType, Error, UpdateTypes, ContractsState, ContractJSON, export, any, boolean, throw, implements, import, number, string, this},
+  ndkeywordstyle=\color{OliveGreen}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`,
+  otherkeywords = {;,<<,>>,++,=>},
+}
+
+\lstdefinelanguage{Pseudocode}{
+  keywords={break, case, catch, const, continue, debugger, default, delete, do, else, finally, for, function, if, is, not, in, instanceof, new, switch, this, throw, try, typeof, var, void, while, with, undefined, void},
+  keywordstyle=\color{blue}\bfseries,
+  morekeywords=[3]{function},
+  keywordstyle=[3]\color{YellowOrange}\bfseries,	
+  ndkeywords={class, export, any, boolean, throw, implements, import, number, string, this},
+  ndkeywordstyle=\color{OliveGreen}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`,
+  otherkeywords = {;,<<,>>,++,=>,@,==,!=},
+}
+
+\lstdefinelanguage{EVM}{
+  keywords={CALLDATALOAD, DIV, AND, PUSH4, DUP2, EQ, PUSH, JUMPI, DUP1,},
+  keywordstyle=\color{blue}\bfseries,
+}
+
 \lstset{
 	language=Solidity,
 	backgroundcolor=\color{verylightgray},
@@ -208,5 +270,71 @@
 	captionpos=b
 }
 
+\lstset{
+   language=JavaScript,
+   backgroundcolor=\color{verylightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\scriptsize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+
+\lstset{
+   language=Pseudocode,
+   backgroundcolor=\color{verylightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\scriptsize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+
+\lstset{
+   language=EVM,
+   backgroundcolor=\color{verylightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\scriptsize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
+
+\lstnewenvironment{sflisting}{\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  backgroundcolor=\color{white},
+  numbers=none
+  }}{}
+
+  \newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}

@@ -209,6 +209,28 @@ url = {https://ethereum.github.io/yellowpaper/paper.pdf}
   url={https://ethereum.org/en/developers/docs/consensus-mechanisms/pow/}
 }
 
+@article{manticore,
+  author    = {Mark Mossberg and
+               Felipe Manzano and
+               Eric Hennenfent and
+               Alex Groce and
+               Gustavo Grieco and
+               Josselin Feist and
+               Trent Brunson and
+               Artem Dinaburg},
+  title     = {Manticore: {A} User-Friendly Symbolic Execution Framework for Binaries
+               and Smart Contracts},
+  journal   = {CoRR},
+  volume    = {abs/1907.03890},
+  year      = {2019},
+  url       = {http://arxiv.org/abs/1907.03890},
+  eprinttype = {arXiv},
+  eprint    = {1907.03890},
+  timestamp = {Wed, 17 Jul 2019 10:27:36 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1907-03890.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
 @misc{eth51percentattack,
   author = {Pawan Nahar},
   title = {What are 51 percent attacks in cryptocurrencies?},
@@ -431,4 +453,68 @@ numpages = {16},
 keywords = {blockchain, cryptocurrencies, smart contract, ethereum, symbolic execution},
 location = {Vienna, Austria},
 series = {CCS '16}
+}
+
+@INPROCEEDINGS{loopanalysis,
+  author={Lokuciejewski, P. and Cordes, D. and Falk, H. and Marwedel, P.},
+  booktitle={2009 International Symposium on Code Generation and Optimization}, 
+  title={A Fast and Precise Static Loop Analysis Based on Abstract Interpretation, Program Slicing and Polytope Models}, 
+  year={2009},
+  volume={},
+  number={},
+  pages={136-146},
+  doi={10.1109/CGO.2009.17}}
+
+@article{visualgas,
+  author    = {Christopher Signer},
+  title     = {Gas Cost Analysis for Ethereum Smart Contracts},
+  year      = {2018},
+  url       = {https://www.research-collection.ethz.ch/bitstream/handle/20.500.11850/312914/TMeineOrdnerMaster-ArbeitenHS18Signer_Christopher.pdf},
+}
+
+@misc{visualgas_timedcrowdsale,
+  author = {Christopher Signer},
+  title = {TimedCrowdsale},
+  url={https://github.com/ABBDVD/TimedCrowdsale}
+}
+
+@misc{solbolt,
+  author = {Richard Xiong},
+  title = {Solbolt},
+  url={https://www.solbolt.com}
+}
+
+@inproceedings{visualgas_fuzzer,
+author = {Balunović, Mislav and Ambroladze, Nodar and Tsankov, Petar and Vechev, Martin},
+year = {2019},
+month = {11},
+pages = {531-548},
+title = {Learning to Fuzz from Symbolic Execution with Application to Smart Contracts},
+isbn = {978-1-4503-6747-9},
+doi = {10.1145/3319535.3363230}
+}
+
+ @article{smart_contract_sanctuary, 
+          title={Smart Contract Sanctuary}, 
+          url={https://github.com/tintinweb/smart-contract-sanctuary}, 
+          author={Ortner, Martin and Eskandari, Shayan}} 
+
+@article{10.1145/360248.360252,
+author = {King, James C.},
+title = {Symbolic Execution and Program Testing},
+year = {1976},
+issue_date = {July 1976},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {19},
+number = {7},
+issn = {0001-0782},
+url = {https://doi.org/10.1145/360248.360252},
+doi = {10.1145/360248.360252},
+abstract = {This paper describes the symbolic execution of programs. Instead of supplying the normal inputs to a program (e.g. numbers) one supplies symbols representing arbitrary values. The execution proceeds as in a normal execution except that values may be symbolic formulas over the input symbols. The difficult, yet interesting issues arise during the symbolic execution of conditional branch type statements. A particular system called EFFIGY which provides symbolic execution for program testing and debugging is also described. It interpretively executes programs written in a simple PL/I style programming language. It includes many standard debugging features, the ability to manage and to prove things about symbolic expressions, a simple program testing manager, and a program verifier. A brief discussion of the relationship between symbolic execution and program proving is also included.},
+journal = {Commun. ACM},
+month = {jul},
+pages = {385–394},
+numpages = {10},
+keywords = {program debugging, symbolic execution, program proving, program verification, program testing, symbolic interpretation}
 }

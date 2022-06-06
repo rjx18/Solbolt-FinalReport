@@ -1,13 +1,20 @@
-\chapter{Implementation}
+\chapter{Design and Implementation}
 \label{chap:implementation}
 
 
 \section{Feature summary}
-This project has successfully built and deployed Solbolt, a compiler explorer and gas analysis tool,
-which is available for all to use on the live website \cite{solbolt}. Next, we shall examine some of its
+This project has successfully built and deployed \textcolor{NavyBlue}{\textsc{Solbolt}}, a compiler explorer and gas analysis tool,
+which is available for all to use on the live website at \href{https://www.solbolt.com}{\textcolor{NavyBlue}{solbolt.com}} \cite{solbolt}. Next, we shall examine some of its
 key features, with reference to a summary graphic shown in Figure \ref{fig:solbolt_summary}.
 
 \subsection{Solidity Compilation}
+
+\begin{sidewaysfigure}
+  \centering
+  \includegraphics[width=\textwidth]{./figures/implementation/summary}
+  \caption{Summary of \textcolor{NavyBlue}{\textsc{Solbolt}} features}
+  \label{fig:solbolt_summary}
+\end{sidewaysfigure}
 
 The tool supports the compilation of contracts written in Solidity version 0.4.10 to 0.8.13,
 as well as support for EVM version from \texttt{homestead} to \texttt{berlin}. This is, to
@@ -24,7 +31,7 @@ load a contract from a verified Ethereum address for compilation, using Item 1.5
 as indicated in the summary graphic.
 
 After successful compilation of the source, the EVM assembly opcodes will be displayed
-on the right "Assembly viewer" pane. Sections of the opcodes will be colour-coded based 
+on the right ``Assembly viewer" pane. Sections of the opcodes will be colour-coded based 
 on its mapping to the Solidity source code, similar to the Godbolt tool that inspired this
 project. Hovering over a section will also highlight and bring to view its corresponding
 mapped section on the other pane, which can be frozen via a keyboard shortcut.
@@ -34,7 +41,7 @@ mapped section on the other pane, which can be frozen via a keyboard shortcut.
   \subfloat[\centering Compiler options]{{\label{fig:solbolt_compiler_options}\includegraphics[width=0.3\textwidth]{./figures/implementation/compiler_options} }}%
   \qquad
   \subfloat[\centering Symbolic execution options]{{\label{fig:solbolt_symexec_options}\includegraphics[width=0.3\textwidth]{./figures/implementation/symexec_options} }}%
-  \caption{Solbolt options}%
+  \caption{\textcolor{NavyBlue}{\textsc{Solbolt}} options}%
   \label{fig:solbolt_options}%
 \end{figure}
 
@@ -69,13 +76,6 @@ Users can also provide a on chain address for symbolic execution,
 and the engine will make use of the live concrete storage state of that address instead of
 a symbolic storage state.
 
-\begin{sidewaysfigure}
-  \centering
-  \includegraphics[width=\textwidth]{./figures/implementation/summary}
-  \caption{Summary of Solbolt features}
-  \label{fig:solbolt_summary}
-\end{sidewaysfigure}
-
 \subsection{Gas Inspector}
 
 Finally, the user is able to refer to the gas inspector tab on the right for a more detailed
@@ -90,21 +90,28 @@ as seen with Item 3.6, shows a gas profile of the smart contract by plotting the
 of code sections that fall under a certain gas usage class. Lastly, Item 3.7 shows a histogram
 of worst case gas usage by each executed function.
 
-
-
+\clearpage
 \section{Architecture Design}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figures/implementation/architecture}
+  \caption{\textcolor{NavyBlue}{\textsc{Solbolt}} architecture overview}
+  \label{fig:solbolt_architecture}
+\end{figure}
+
 \subsection{UI Elements and Redux State Management}
-The Solbolt frontend is built from scratch using React (Typescript) 17.0.2 and Material UI 5.3.1.
+The \textcolor{NavyBlue}{\textsc{Solbolt}} frontend is built from scratch using React (Typescript) 17.0.2 and Material UI 5.3.1.
 It is designed as a Single-Page Application (SPA), with three main panels for simple
 simple navigation, as seen in the screenshot in Figure \ref{fig:solbolt_summary}.
-We chose to develop Solbolt fully in Typescript rather than Javascript, because although
+We chose to develop \textcolor{NavyBlue}{\textsc{Solbolt}} fully in Typescript rather than Javascript, because although
 this required the definition of additional interfaces and typing of arguments, it also
 provided benefits such as code hints and error highlighting when the expected types of objects
 did not match.
 
-The frontend makes extensive use of redux, \texttt{useContext} and hooks. This prevented
-the common nuisance of passing props deeply into nested components when using React.
+A common challenge we faced when designing the frontend was having to pass and manage props
+deeply into nested components when using React.
+This was addressed by making extensive use of redux, \texttt{useContext} and hooks.
 For example, for managing the contract state, we created an \texttt{ContractsContext} that
 included the \texttt{ContractsState}, as well as functions to update the 
 \texttt{ContractsState}, as seen in Listing \ref{lst:solbolt_contracts_context}.
@@ -160,7 +167,7 @@ components across different routes, such as the application state, mappings stat
 contracts state. Updates are also handled automatically by React, because whenever the 
 redux state is changed, the components dependent on it are also rerendered.
 This also makes it simple to store these states persistently in local
-browser storage, such that the user's session is restored after launching Solbolt again.
+browser storage, such that the user's session is restored after launching \textcolor{NavyBlue}{\textsc{Solbolt}} again.
 
 \subsection{Monaco Editor}
 
@@ -179,15 +186,16 @@ stack. These can be saved and loaded as needed when switching tabs.
 
 \subsection{Etherscan Integration}
 
-The Solbolt frontend is directly integrated with the Etherscan API, and has access to over 160,000
+The \textcolor{NavyBlue}{\textsc{Solbolt}} frontend is directly integrated with the Etherscan API, which is a popular blockchain
+explorer tool and has a collection of over 160,000
 verified contract source codes to date \cite{smart_contract_sanctuary}. Etherscan now also 
-supports multiple source files for verification, and as such, Solbolt also introduced tabs support
+supports multiple source files for verification, and as such, \textcolor{NavyBlue}{\textsc{Solbolt}} also introduced tabs support
 for editing and compiling multiple files. The user simply needs to input the Ethereum address they
-wish to analyse, and Solbolt will automatically send a request and parse the Etherscan result, before
+wish to analyse, and \textcolor{NavyBlue}{\textsc{Solbolt}} will automatically send a request and parse the Etherscan result, before
 updating the view with the retrieved source files.
 
 \subsection{Backend and REST API}
-Requests to the Solbolt backend are first routed through the NGINX reverse-proxy, which also
+Requests to the \textcolor{NavyBlue}{\textsc{Solbolt}} backend are first routed through the NGINX reverse-proxy, which also
 acts as a rate limiter. These are then forwarded to the API endpoints, built using Flask and
 served with Gunicorn. Each request for initiating a compilation or symbolic execution task will generate a
 new task ID, which is returned in the response. This task request is also simultaneously
@@ -200,7 +208,10 @@ are stored permanently, other than being cached by Redis.
 
 \subsection{Celery Task Queue}
 
-For the actual execution of the published tasks, two Celery workers listen to tasks 
+Since the published tasks take a significant amount of time to complete,
+much longer than a HTTP request typically remains alive for, we had to manage the task execution
+on a separate task queue using Celery.
+Two Celery workers on different threads listen to tasks 
 on the Redis broker, and pick them up as soon as they are ready and available. Each worker runs
 an instance of the extended Mythril symbolic execution engine or Solidity compiler, and once 
 the job is complete, the results are stored within the Redis cache. These will be accessed
@@ -223,20 +234,9 @@ Best practices for security are also observed at all times, such as placing all 
 production secrets within environment variables. The backend is also protected from malicious
 bots and denial-of-service attacks via custom jails with \texttt{fail2ban}.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{./figures/implementation/architecture}
-  \caption{Solbolt architecture overview}
-  \label{fig:solbolt_architecture}
-\end{figure}
-
 \section{Mythril Extensions}
 
 \subsection{Gas Meter Plugin and Gas Hooks}
-
-The purpose of the gas meter plugin is to keep track of the average total amount of gas 
-used per symbolic transaction by each Solidity code section. This will then be presented to
-the user in the form of a gas heatmap. 
 
 Originally, Mythril already has some gas tracking
 capabilities, but it only kept track of the total gas used up at each program point,
@@ -246,8 +246,12 @@ counted \texttt{SSTORE} and \texttt{SLOAD} storage opcode gas costs together wit
 and therefore only stored the opcode and memory gas usage. However, because storage costs
 often represent the majority of gas usage in most smart contracts, we felt it was 
 informative to separate out the storage costs from the rest of the opcode costs.
+ 
+We therefore built a custom gas meter plugin, whose purpose is to keep track of the average total amount of gas 
+used per symbolic transaction by each Solidity code section. This will then be presented to 
+the user in the form of a gas heatmap. 
 
-We therefore built a custom gas meter plugin, which stores a global gas meter object that in turn,
+The plugin works by storing a global gas meter object that in turn,
 stores a map of each code section to a struct containing the following information:
 
 \begin{itemize}
@@ -267,15 +271,19 @@ The plugin also uses a local gas meter object, which is stored in each global st
 the gas meter annotation.
 This local gas meter contains the same information as above, but only for the current transaction trace.
 
-In addition to the gas meter plugin, we also designed a new hook for the Mythril engine,
-called the gas hook. The pre-instruction hook was not suitable
+Another challenge we faced while implementing the gas meter 
+was the fact that none of the available hooks were suitable 
+for calling the plugin. The pre-instruction hook was not suitable
 for this plugin, because the opcode has not been executed yet, and the gas is therefore not 
 incremented. The instruction hooks are not suitable either, because they are called with the
 initial global state, rather than the new global states with updated gas costs. The post-instruction
 hooks are also not suitable, because although they had the updated gas costs after executing the
 opcode, the programme counter (PC) has also been incremented to the next instruction, and therefore
-we cannot attribute gas costs to the correct previous instruction that has used it. As such, 
-we needed a new gas hook, which is called right after the machine state within the current
+we cannot attribute gas costs to the correct previous instruction that has used it. 
+
+As such, 
+we had to design and implement a new custom hook for the Mythril engine, called the gas hook, 
+which is called right after the machine state within the current
 global state is updated with the latest gas costs, but before the PC is 
 incremented.
 
@@ -326,23 +334,23 @@ then calculated, and returned as part of the result to the client.
 
 \subsection{Function Tracker Plugin}
 
-The purpose of the function tracker plugin is to track the worst case transaction gas 
-estimate for each function that can be called externally via a transaction. This is then
-displayed to the user via a glyph decoration within the Solidity editor, 
-next to each function detected by the plugin.
-
-Mythril also has some capabilities for tracking the current function that the execution is in.
-However, it only tracks the current active function, and therefore if function $X$ calls another
+Mythril also has some native capabilities for tracking the current function that the execution is in.
+However, one challenge we faced when using this is that 
+it only tracks the current active function, and therefore if function $X$ calls another
 function $Y$ of the same contract, and the transaction reverts in function $Y$, then the active function
 will still be function $Y$, and the worst case gas accumulated so far will be incorrectly attributed
 to function $Y$ instead of function $X$. Instead, we want to know the entry function that is called
 at the start of the transaction, and attribute all gas accumulated throughout all possible paths (no matter
 if other functions are called as well) to that entry function.
 
-The function tracker plugin was therefore created to store this information, and makes
-use of the EVM dispatcher routine to detect which function we have entered.
+The function tracker plugin was therefore created to more accurately track the worst case transaction gas 
+estimate for each function that can be called externally via a transaction. This is then
+displayed to the user via a glyph decoration within the Solidity editor, 
+next to each function detected by the plugin.
+The plugin also makes clever use of the pattern observed in the EVM dispatcher routine 
+to detect which function we have entered.
 
-To understand how the plugin works, we first need to understand how the EVM dispatcher identifies and jumps 
+Therefore, to understand how the plugin works, we first need to understand how the EVM dispatcher identifies and jumps 
 to the correct function when executing a transaction call. Each smart contract call transaction 
 must contain calldata, of which the starting 4 bytes indicate the signature (or hash) of the function
 that the transaction wishes to execute, as seen in Listing \ref{lst:function_tracker_transaction_data}. 
@@ -384,10 +392,11 @@ Transaction raw calldata:
   \end{lstlisting}
 \end{minipage}
 
-Therefore, we can use this pattern to identify which function the current trace entered
-at the beginning. Since the calldata is symbolic, we cannot simply check its value for 
-the function signature called, as this value does not yet exist. Instead, we make use of the
-algorithm outlined by the pseudocode in Listing \ref{lst:function_tracker_hooks}.
+We can thus make use of this pattern to identify which function the current trace entered
+at the beginning. However, another challenge is that since the calldata is symbolic, 
+we cannot simply check its value for the function signature called, 
+as this value does not yet exist. Instead, we designed a new
+algorithm for the plugin as outlined by the pseudocode in Listing \ref{lst:function_tracker_hooks}.
 
 
 \begin{lstlisting}[language=Pseudocode, caption={Hooks implemented for function tracker plugin}, label={lst:function_tracker_hooks}, basicstyle=\ttfamily\scriptsize]
@@ -530,15 +539,30 @@ get the current annotation (and hence local loop gas meter) from the global stat
 the global loop gas meter stored in the plugin. The average iteration gas cost for each loop head found
 is then taken, and returned to the user as the result.
 
-Now, we explain more about how the \texttt{find_loop} function works. An outline of its
-pseudocode is provided in Listing \ref{lst:loop_gas_find_loop}. Essentially, the
+Now, we discuss more about how the \texttt{find_loop} function works, which is
+the main challenge faced when implementing this plugin. Unlike other loop finding
+algorithms that work on linked lists, our case is unique in that this linked list of 
+the execution trace is
+being constructed while we try to detect a loop. As such, methods such as the Floyd's
+Cycle Detection Algorithm will not work, because the ``fast" pointer will not know
+what paths to proceed towards, as they have not been executed yet and added to the trace.
+Therefore, we have to make use of a pattern matching algorithm that starts from the end of the trace 
+and proceeds backwards, in order to detect a possible loop.
+An outline of its
+pseudocode is provided in Listing \ref{lst:loop_gas_find_loop}. 
+
+Essentially, the
 function works by finding a match of the latest two consecutive \texttt{JUMPDEST} instructions
 from within the PC history stored in the trace. If this is found, we set as former of the latest
-two consecutive instructions as the loop head. This heuristic is not 100\% accurate however,
+two consecutive instructions as the loop head. Overall, the algorithm is O(n) in time complexity
+since it needs to possibly traverse the entire trace, and O(n) in space complexity as well, since
+the entire trace has to be stored within the annotation.
+
+This algorithm is not 100\% accurate however,
 and we may find false positives. For example, if two sections of a function both call the same
 helper function, this may register as a loop even though the helper function is not recursive.
 However, we chose to use this heuristic over other static analysis methods (on the EVM bytecode
-or Solidity code) because it is able to not only capture possible "hidden" loops generated
+or Solidity code) because it is able to not only capture possible ``hidden" loops generated
 by the compiler, it is also able to capture any recursive loops seen during each symbolic execution.
 Also, from our testing, the rate of false positives is not high, and can be trivially ignored 
 by the developer.
@@ -623,7 +647,7 @@ interval between the previous loop head and the current PC. In our example, in s
 we can see that the second occurence of $\{388, 411\}$ has been removed.
 This is to prevent any double counting of loop heads. For example, if no trace
 iterms were deleted, the trace at step 6 would instead be $\{241, 388, \textcolor{red}{411, 388, 411, 388}\}$,
-and the algorithm would detect another loop at PC 411. However, this "loop" was already accounted for
+and the algorithm would detect another loop at PC 411. However, this ``loop" was already accounted for
 in the loop starting at PC 388. Finally, the PC of the loop head, and the iteration gas cost is returned.
 
 \subsection{Loop Mutation Detector Plugin}
@@ -632,7 +656,7 @@ Finally, we also developed a loop mutation detector, which checks if there are a
 opcodes found within a loop. This is because one of the common gas-hungry anti-patterns is unnecessarily
 modifying storage variables within the loop body, when you can instead use a temporary local copy of the storage 
 variable within the loop, and then update the actual storage variable just once when the loop is complete. This example is evaluated
-in more detail in Section TODO: Add gas hungry loop example. 
+in more detail in Section \ref{section:gas_hungry_loop}. 
 
 To implement this plugin, we set up an instruction hook for \texttt{SSTORE} and \texttt{SLOAD}
 instructions, and simply piggy-backed off the \texttt{JumpdestCountAnnotation} used by
@@ -653,8 +677,9 @@ While testing the performance of the symbolic execution engine, we noticed that 
 were completed very quickly, but the next transactions took exponentially longer times to symbolically execute.
 This may be because the state space grows exponentially with the number of transactions, but we also suspected
 that because the list of constraints for each state also grows exponentially, this makes solving them much slower.
-In addition, we found that some states were not being executed, because the Z3 solver was timing out and simply
-marking the state as unreachable.
+In addition, we faced with the challenge where some states were not being executed after the first transaction, 
+because the Z3 solver was timing out from having to solve constraints that were too complex, and it simply marked 
+the state as unreachable. This caused very poor performance for code coverage.
 
 Security verification requires the fact that unreachable states are pruned and not executed, because 
 they are focused on which paths are reachable and which are not. However, for our purpose of gas estimation,

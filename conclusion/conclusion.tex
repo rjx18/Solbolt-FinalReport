@@ -1,0 +1,109 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+As the DeFi and NFT space continues to grow in the coming years, concerns over high gas prices
+required to perform any transactions within this space will likely continue. While scaling
+decentralised blockchains such as Ethereum remains an open problem being worked on, developers
+today can help partially address this by writing better, more gas-efficient smart contracts.
+
+As such, \textcolor{NavyBlue}{\textsc{Solbolt}} is designed particularly for this purpose, to help developers better pinpoint
+exactly which parts of their code is using up the most amount of gas, and to more easily identify
+gas-inefficient patterns.
+
+\section{Summary of Achievements}
+
+Currently, the majority of Solidity analysis tools available on the market are focused on 
+security verification of smart contracts, and often neglect another important part of the
+development pipeline --- gas optimisation.
+With \textcolor{NavyBlue}{\textsc{Solbolt}}, the compiler-explorer and gas analysis tool we have built, we believe that
+we have successfully achieved our objective of creating a tool that helps developers 
+better understand the compiled bytecode and gas profile of their contract, and addressed some of the market gaps within this part of the Solidity
+development ecosystem, as summarised:
+
+\begin{enumerate}
+  \item \textbf{Intuitive and powerful user interface of compiled EVM bytecode and their source maps}
+  
+    We have successfully built a simple-to-use and intuitive interface for
+    viewing the compiled EVM bytecode and their source maps, inspired
+    by the tool Godbolt. The frontend is built using React Typescript and served using
+    AWS Amplify, while the backend made use of a Celery task queue for the dispatching of
+    jobs, as well as Flask for serving the API endpoints. 
+    The hover function makes it easy to identify which code
+    sections relate to which EVM bytecodes, and the Etherscan API integration
+    allows for easy analysis of any verified Ethereum smart contracts. 
+    In addition, the tool allows for the compilation of multi-file, multi-contract
+    source codes, from a wide range of supported Solidity compilers. 
+    Finally, the customisable compiler settings also exposes a detailed
+    range of optimisation options.
+
+    To date,
+    we know of no other tool that provides a similar user experience when
+    analysing the EVM bytecode. We believe that this function can be very
+    useful for researchers and developers, who are looking to more closely
+    examine their deployed bytecode, or wish to tweak some of the more obscure
+    optimisation options.
+    
+  \item \textbf{Accurate and detailed analysis of gas consumption}
+  
+    Our extended Mythril symbolic execution engine can accurately estimate the gas consumption of
+    most contracts within reasonable margins, given sufficient coverage. This can be
+    performed at the code section level, using the gas meter and gas hooks which we have 
+    built specifically for this task. Gas estimation can also be done at the functional level
+    and the per loop iteration level, by 
+    developing a function tracker plugin which made use of the EVM dispatcher routine to
+    infer the function that was taken by each symbolic execution path,
+    as well as a loop gas meter plugin which stores the current executional trace
+    and is able to detect if we are currently in a loop. These features provide detailed insight about the gas profile
+    of the smart contract and where possible savings may be, which to our knowledge,
+    no other tool is able to generate with the same level of accuracy and fineness.
+
+    The project also proves the efficiency of symbolic execution for not just
+    security analysis, but also gas estimation.
+
+  \item \textbf{Automatic detection of potential issues for further gas savings}
+  
+    \textcolor{NavyBlue}{\textsc{Solbolt}} is also able to automatically detect common gas-inefficient patterns,
+    such as modifying storage variables within a loop, to allow developers to 
+    quickly pinpoint where potential gas savings can be achieved. This has shown
+    to be useful and accurate in the case study we have examined.
+    
+\end{enumerate}
+
+\section{Limitations}
+While we believe that \textcolor{NavyBlue}{\textsc{Solbolt}} is ready for general development use, we also acknowledge some of
+the limitations that \textcolor{NavyBlue}{\textsc{Solbolt}} currently has. First, when compared to some state-of-that-art
+gas estimation tools such as \textsc{Gastap}, \textcolor{NavyBlue}{\textsc{Solbolt}} still is not able to guarantee a worst-case gas bound,
+and is unable to generate paramteric bounds depending on function arguments. \textcolor{NavyBlue}{\textsc{Solbolt}} may also at times
+fail to work when using advanced features such as manual linking of libraries, or the use of oracles.
+
+In addition, while the original scope of the work included compilation and mapping of the
+Yul intermediate representation, this has been sidelined by the creation of more detailed
+plugins for analysis on the EVM bytecode instead. However, we believe that once Yul matures
+from its experimental state, such a feature could be very useful in the future. This is especially so
+given the planned usage of EWASM over EVM for the future release of Ethereum, where Yul will continue
+to act as an intermediate language.
+
+\section{Future work}
+\textcolor{NavyBlue}{\textsc{Solbolt}} is still a work in progress and improvements to the user interface and the symbolic engine
+can definitely still be made. Some possible ideas that come to mind are laid out as follows:
+
+\begin{enumerate}
+  \item \textbf{Support for Yul IR code mappings} The code mappings for the Yul IR can be added to the
+  \textcolor{NavyBlue}{\textsc{Solbolt}} pipeline, by first storing the Solidity code maps generated for the Yul IR, and then compiling
+  the Yul IR into the EVM bytecode and storing the corresponding Yul code maps. The Yul code maps would then
+  need to be merged with the Solidity code maps in order to produce a global code mapping. This would however
+  only be supported for more recent versions of the Solidity compiler that support Yul compilation.
+    
+  \item \textbf{Integration with block explorers for other EVM-compatible chains} Next, in addition to 
+  the Etherscan API, we would like to possibly integrate other block explorers
+  to analyse contracts across all EVM-compatible chains, such as BSCScan for Binance Smart Chain,
+  Snowtrace for the Avalanche C-Chain, and so on.
+
+  \item \textbf{More plugins for detection of gas inefficient patterns} Currently, \textcolor{NavyBlue}{\textsc{Solbolt}} is only able to
+  detect storage variable access within loops as a gas inefficient pattern. However, many other gas inefficient
+  patterns also exist, such as dead code, opaque predidates, potentially fusible loops, and repeated
+  computation of the same result \cite{gaschecker} \cite{designpatternsforgasoptimisation}. These can
+  possibly be implemented as additional plugins for Mythril, and be used to quickly detect potentialy avoidable
+  gas usage in a smart contract.
+
+\end{enumerate}

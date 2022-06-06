@@ -1,9 +1,12 @@
 \documentclass[12pt,twoside]{report}
+\linespread{1.1} 
 
 % some definitions for the title page
-\newcommand{\reporttitle}{Solbolt -- a compiler explorer and smart contract gas usage tracker for Solidity}
+% TODO: Make the lines in the title space out more
+\newcommand{\reporttitle}{\textcolor{NavyBlue}{\textsc{Solbolt}} -- a Compiler Explorer and Smart Contract Gas Usage Tracker for Solidity}
 \newcommand{\reportauthor}{Richard Jun Wei Xiong}
-\newcommand{\supervisor}{Dr. William Knottenbelt}
+\newcommand{\supervisor}{Prof William Knottenbelt}
+\newcommand{\secondmarker}{Dr Maria Vigliotti}
 \newcommand{\reporttype}{MEng Individual Project}
 \newcommand{\degreetype}{MEng Computing (Artificial Intelligence and Machine Learning)} 
 
@@ -25,11 +28,11 @@
 \pagestyle{fancy}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \input{abstract/abstract.tex}
+\input{abstract/abstract.tex}
 
 % \cleardoublepage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \input{acknowledgements/acknowledgements.tex}
+\input{acknowledgements/acknowledgements.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--- table of contents
@@ -58,9 +61,8 @@
 \input{eval/eval.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{ethic/ethic.tex}
 
-\input{projplan/projplan.tex}
+\input{conclusion/conclusion.tex}
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,5 +78,7 @@
 \bibliography{bibliography}
 % \addbibresource{bibliography.bib}
 % \printbibliography %Prints bibliography
+
+\input{appendix/appendix.tex}
 
 \end{document}

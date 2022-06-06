@@ -1,3 +1,43 @@
 \begin{abstract}
-    Your abstract.
+
+With the recent boom in interest for DeFi platforms and NFTs on
+smart contract enabled blockchains such as Ethereum, the cost of performing transactions
+in terms of gas prices has increased tremendously. In order to make these transactions
+more accessible for general usage, there is a clear need not only for the better
+scaling of blockchains, but also for developers to create more gas efficient 
+applications. However, most of the developer tools that exist today mainly focus on
+security verification rather than gas analysis for Solidity smart contracts.
+As such, the main goal of this project is to create a powerful yet user-friendly
+tool, that generates detailed gas estimates and detects potential issues,
+so as to help developers more easily pinpoint which parts of their contracts can be
+refactored to save gas.
+
+The tool we created, \textcolor{NavyBlue}{\textsc{Solbolt}}, makes use 
+of symbolic execution by extending the Mythril engine, via its 
+plugin and hooks system. \textcolor{NavyBlue}{\textsc{Solbolt}} is able to:
+(i) generate a detailed code mapping from the compiled EVM bytecode
+to the original Solidity bytecode, via a simple user interface built
+using React Typescript and inspired by the popular GCC compiler explorer
+tool Godbolt, and a backend running the Solidity compiler and Mythril engine, 
+served using Flask and a Celery task queue; (ii) estimate the gas usage for each code mapping, by 
+using a custom gas meter plugin and gas hook that we extended the original Mythril
+engine with, which stores the total gas used by each code section for each symbolic transaction; 
+(iii) estimate the gas usage for each function and each loop iteration, by 
+developing a function tracker plugin which made use of the EVM dispatcher routine to
+infer the function that was taken by each symbolic execution path,
+as well as a loop gas meter plugin which stores the current executional trace
+and is able to detect if the trace is currently in a loop; (iv) allow users to directly import verified contracts
+from the Etherscan API; and (iv) automatically detect possible gas
+inefficient patterns and suggest how they can be fixed, namely the detection of
+storage mutations within a loop.
+
+\textcolor{NavyBlue}{\textsc{Solbolt}} is then evaluated
+over 1,392 smart contracts, by comparing the estimated gas costs
+for each function to the actual transaction gas cost. The median estimated gas
+cost was found to be 129.3\% of the concrete gas costs, while the median
+coverage was 99.1\%. These results are then compared to other previous studies,
+and were found to be comparable with the current state-of-the-art. Finally, 
+a case study was performed to determine how a developer might use the tool
+to optimise a smart contract.
+
 \end{abstract}

@@ -14,7 +14,7 @@
     directly.
 \end{chapquote}
 
-\section{Overview}
+\section{Motivation}
 In recent years, Ethereum has emerged as a promising network
 for building next-generation, decentralised applications (DApps). Ethereum makes use of
 blockchain technology to achieve consensus in a distributed, public,
@@ -85,64 +85,109 @@ and line of code could greatly enhance and simplify such analysis, not only for
 smart contracts on the Ethereum blockchain, but also for all EVM compatible chains such as
 the Binance Smart Chain, Polygon, and the Avalanche Contract Chain \cite{evmcompatiblechains}.
 
-\section{Planned contributions}
+\section{Objective}
 
-With the goal of gas optimisation in mind, this project aims to improve on current 
+The goal of this project is therefore to create a tool that helps Solidity developers:
+
+\begin{itemize}
+  \item better understand how the compiled EVM bytecode relates to their Solidity source code,
+  and how different optimisation options affect the compiled bytecode
+  \item easily and intuitively understand the gas profile of their smart contract, and
+  the parts of their code that use up the most amount of gas
+  \item quickly locate and identify potential gas savings, as well as find possibly gas
+  inefficient patterns
+\end{itemize}
+
+\section{Contributions}
+
+With this goal of gas optimisation in mind, this project aims to improve on current 
 smart contract development tools by creating a smart contract compiler explorer tool,
 which can also display a heatmap of the gas usage of each bytecode instruction, while mapping
 them to the corresponding lines in the user's source code. This is inspired by Godbolt \cite{godbolt},
 a popular compiler explorer tool for C++ for finding optimisations in the GCC compiler.
-The following summarises the intended contributions this project plans to achieve.
+The following summarises the contributions this project has achieved:
 
 \begin{enumerate}
-    \item \textbf{Compilation and mapping of each line of user Solidity code into their corresponding EVM bytecode and Yul intermediate representation.}
+    \item \textbf{Compilation and mapping of each line of user Solidity code into their corresponding EVM bytecode.}
     
       Similar to Godbolt which is able to easily map and visualise which assembly
-      instructions correspond to its high-level C++ code, we want to achieve a
+      instructions correspond to its high-level C++ code, we created a tool that achieves a
       similar result with EVM assembly bytecode and its corresponding Solidity code.
-      We also want to be able to generate the Yul intermediate representation for
-      the Solidity code, which is a recently introduced language between Solidity
-      and EVM assembly.
+      This tool is easy to explore and read via an intuitive user interface built using React
+      Typescript, and is as fine-grained as the compiler allows us to.
+      
     \item \textbf{Analysis of gas consumption via symbolic execution for each EVM instruction}
     
       The schedule for gas consumption of EVM instructions is carefully laid out 
       in the Ethereum Yellow Paper \cite{ethereumyellowpaper}. Using this,
-      we want to conduct an analysis of gas consumption for each line
-      of Solidity code, instead of simply at a function call level. To do this, we 
-      propose using symbolic execution to traverse each possible execution path, 
-      and then aggregating the gas costs for each basic block. 
-      To address the problem of path explosion, we also propose the implementation of a
-      non-iterative loop bounds analysis that can generate a parametric loop bound using
-      polytopes. Then, we can allow users to define these external parameters to obtain a 
-      more precise estimate.
+      our tool conducts an analysis of gas consumption for each line
+      of Solidity code, instead of simply at a function call level. This is performed
+      using symbolic execution, commonly used for security analysis, to traverse each possible execution path, 
+      and then aggregating the gas costs for each code section, via a gas meter plugin and gas hook which
+      we built specifically for this purpose. Our tool is also able to estimate gas costs
+      for each function and loop iteration, via a function tracker plugin that makes use of
+      the EVM dispatcher routine to determine which function the current execution path has taken,
+      as well as a loop gas meter that makes use of a special loop finding algorithm to determine the
+      iteration gas cost. This is the first time we know 
+      of such an analysis method being used for gas estimation. We also perform a detailed 
+      evaluation over the accuracy and coverage that this method provides.
 
     \item \textbf{Generation of heatmaps of gas usage per line of code}
     
-      To make visualising gas usage simpler, we plan on generating a heatmap on top of
+      To make visualising gas usage simpler, our tool is able to generate a heatmap on top of
       the direct mapping from EVM bytecode instructions to Solidity code, which would 
       display at a glance which lines of code are consuming the most amount of gas, and 
-      may potentially have room for optimisation.
+      may potentially have room for optimisation. The tool also calculates additional
+      profiling information, such as the histogram of the number of code sections that 
+      consume a certain amount of gas.
 
-    % \item \textbf{Automatic identification of gas inefficient patterns}
+    \item \textbf{Automatic identification of gas inefficient patterns}
       
-    %   We plan on also identifying some common gas-hungry code patterns, 
-    %   based on previous literature on this topic \cite{gaschecker} \cite{designpatternsforgasoptimisation} \cite{underoptimisedcontractsdevour}, as well as our 
-    %   own static analysis of the gas usage, and provide suggestions on how 
-    %   to improve them.
+      Our tool is also able to automatically identify some common gas-hungry code patterns, 
+      namely the detection of storage mutations within a loop, 
+      and provide suggestions on how to improve them.
       
 \end{enumerate}
+
+\section{Ethical considerations}
+
+Overall, there does not seem to be any major ethical concerns regarding the nature of 
+this project. We have also investigated the licenses for the libaries we incorporated
+within our tool, namely Mythril and the Solidity compiler, which respectively have the MIT and GPL-3.0
+licenses, and should be permissive enough for our nature of work. 
+However, there are still certain key points of consideration. First of all,
+because the project deals with compiling Solidity code into 
+EVM code, and generating the mappings between them, they may possibly reveal or
+expose vulnerabilities within the compiler generated code. With Ethereum smart contracts 
+nowadays holding up to millions of dollars worth of funds, if such information is revealed
+to malicious actors, it could result in a permanent and irrevocable loss of funds.
+
+In addition, this feature may also allow malicious actors to more easily obfuscate their code,
+by possibly implanting fragments of malicious inline assembly into template contract codes,
+claiming they serve another purpose. Then, users who do not analyse the code in detail and
+simply reuse them may at best lead to bugs in execution, or at worst loss of funds.
+
+Next, there is no guarantee provided by our project about the precision or reliability
+of the gas analysis generated. Therefore, if the gas analysis is not accurate, and other projects
+do not carefully consider the gas used by their contract calls and simply rely on estimates derived
+from our tool, it may result in out of gas errors in future transactions, which may in turn
+lead to funds being locked forever and lost. We therefore intend to waive any liabilities derived
+from the use of our tool.
 
 
 \section{Outline of report}
 
 In Chapter \ref{chap:background}, we provide a summary of smart contracts on Ethereum, the internals of the
 Ethereum Virtual Machine and its gas schedule, as well as a background on Solidity and the 
-Yul intermediate representation. In Chapter \ref{chap:gasbounds}, we describe our proposed
-implementation to estimate gas costs using symbolic execution, and a non-iterative algorithm using
-polytopes to statically infer loop bounds. In Chapter \ref{chap:related}, we briefly examine two 
-related projects, as well as their results and limitations. In Chapter \ref{chap:eval}, we 
-propose the method we intend to measure the project's quality and effectiveness by. In 
-Chapter \ref{chap:ethics}, we examine the possible ethical issues that may arise from 
-this project. Finally, in Chapter \ref{chap:projplan}, we discuss the proposed timeline 
-for the completion of this project, including stretch goals and fallback goals under various
-circumstances.
+Mythril symbolic execution engine. 
+In Chapter \ref{chap:related}, we briefly examine two 
+related projects, as well as their results and limitations.
+In Chapter \ref{chap:implementation}, we describe the
+overall architecture and implementation of our tool, \textcolor{NavyBlue}{\textsc{Solbolt}}, for the estimation of gas 
+costs using symbolic execution. 
+In Chapter \ref{chap:eval}, we 
+evaluate the performance and usability of our tool, firstly via a systematic test on 1,392 Ethereum contracts
+to determine its accuracy and robustness to real world usage, and secondly via a case study of a gas-inefficient 
+contract to understand how a developer might make use of the insights provided by our tool. 
+Finally, in Chapter \ref{chap:conclusion}, we discuss a summary of this project's achievements as 
+well as its limitations, as well as some ideas for future work that can be carried out.

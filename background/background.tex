@@ -36,7 +36,7 @@ of transactions submitted to the blockchain.
 \section{Smart contracts}
 
 The idea of smart contracts was first introduced in 1994 by Nick Szabo \cite{nickszabosmartcontracts1},
-where he describes it as a "computerised transaction protocol that executes the terms of a contract". 
+where he describes it as a ``computerised transaction protocol that executes the terms of a contract". 
 Contractual agreements between parties can be directly embedded within the systems that we 
 interact with, which are able to self-enforce the terms of the contract
 in a way that "minimise[s] exceptions both malicious and accidental, and minimise[s] the need
@@ -224,7 +224,7 @@ making such function calls very efficient. \texttt{private} functions form a sub
 \texttt{internal} functions, in that it is stricter by only being visible to the current contract.
 \texttt{external} functions can only be called via transactions or message calls,
 and all arguments must be copied into memory first. This means that they can only be called
-"internally" by the same contract via the \texttt{this} keyword, which effectively makes an 
+``internally" by the same contract via the \texttt{this} keyword, which effectively makes an 
 external message call to itself. \texttt{public} functions are a superset of \texttt{external} functions,
 in that they can be called internally or externally.
 
@@ -329,7 +329,7 @@ backends \cite{solcyul}, such as future EVM versions and EWASM, and acts as a co
 for all current and future platforms. Yul is also designed to be human readable, with high level constructs
 such as \texttt{for} and \texttt{switch}, but still suitable for whole-program optimisation. Performing 
 analysis on the Yul IR also has the advantage over Solidity code that it 
-reveals certain \textit{"hidden loops"} when dealing with variable sized data types 
+reveals certain \textit{``hidden loops"} when dealing with variable sized data types 
 like \texttt{string} and \texttt{bytes}. 
 
 Due to the additional information that Yul provides in terms of control flow and stack allocation,
@@ -408,7 +408,7 @@ it is helpful to understand how its internals work.
 
 \subsection{Global states}
 
-Mythril keeps track of the different program execution states via "global states", each of which is a complete
+Mythril keeps track of the different program execution states via ``global states", each of which is a complete
 snapshot of the Ethereum virtual machine at a given program point. Each global state contains the following key
 information:
 
@@ -468,19 +468,19 @@ of the work list, and repeats the process until the work list is empty.
 Each strategy can also be extended with the bounded loops strategy (which stops execution once a given 
 loop bound is reached), or call depth limit strategy (which limits the depth of the call stack).
 
-\subsection{The \texttt{LASER} EVM}
+\subsection{The \textsc{Laser} EVM}
 
-The entire symbolic execution pipeline is then implemented as the \texttt{LASER} EVM. A UML diagram describing
-how the pipeline works can be found in Appendix A. In summary, the \texttt{LASER} EVM proceeds via the
+The entire symbolic execution pipeline is then implemented as the \textsc{Laser} EVM. A UML diagram describing
+how the pipeline works can be found in Appendix A. In summary, the \textsc{Laser} EVM proceeds via the
 following steps:
 
 \begin{enumerate}
-    \item The symbolic executor first instruments the \texttt{LASER} EVM with the necessary plugins, and
+    \item The symbolic executor first instruments the \textsc{Laser} EVM with the necessary plugins, and
     initialises the world state, either with symbolic values or with user-configured concrete values.
-    \item The \texttt{LASER} EVM sends a contract creation transaction, which creates the active smart 
+    \item The \textsc{Laser} EVM sends a contract creation transaction, which creates the active smart 
     contract account that we want to perform our analysis on. This also returns a list of initial open global states,
     which the symbolic executor will explore.
-    \item The \texttt{LASER} EVM next begins executing the first transaction on the contract that was created.
+    \item The \textsc{Laser} EVM next begins executing the first transaction on the contract that was created.
     It selects the first global state to execute using the current strategy, and then calls the function responsible
     for modelling the current opcode. One or more new global states are then created from the current global state,
     and appended to the end of the work list.
@@ -495,8 +495,8 @@ following steps:
 
 \subsection{Plugins and Hooks}
 
-The \texttt{LASER} EVM can be easily extended with additional functionality using Mythril's plugin and hooks system. 
-Additional custom plugins can be instrumented into the \texttt{LASER} EVM, by registering certain functions
+The \textsc{Laser} EVM can be easily extended with additional functionality using Mythril's plugin and hooks system. 
+Additional custom plugins can be instrumented into the \textsc{Laser} EVM, by registering certain functions
 to be called by hooks. These hooks are then invoked at several particular points of execution, such as:
 
 \begin{itemize}

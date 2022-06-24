@@ -26,7 +26,7 @@ backends of various DApps. They are also used to define the behaviour of utility
 or various non-fungible tokens (NFTs), which are simply smart contracts that extend a standard
 interface. Examples would be decentralised exchanges such 
 as Uniswap \cite{uniswap} and Sushiswap, decentralised borrowing and lending platforms such as
-Aave \cite{aave} and Compound \cite{compound}, algorithmic stablecoins such as Dai \cite{makerdao} and TerraUSD \cite{terra}, and NFT-powered gaming 
+Aave \cite{aave} and Compound \cite{compound}, algorithmic stablecoins such as Dai \cite{makerdao}, and NFT-powered gaming 
 ecosystems such as Axie Infinity \cite{axieinfinity} and the Sandbox \cite{sandbox}.
 
 Part of the appeal and increasing usage of smart contracts is that it allows transactions and exchanges
@@ -73,13 +73,14 @@ function becomes too complex. Given that Solidity is a language under active dev
 with numerous breaking changes implemented at each major version release \cite{solidity07breaking} \cite{solidity08breaking}, the few tools
 designed with gas estimation in mind are also either no longer maintained or broken, or
 inadequate for fine-grained, line-level gas analysis. We will discuss some of these existing
-tools in the background section later.
+tools in Section \ref{chap:related}.
 
 Currently, most Solidity developers simply make use of general tools such as the Remix IDE, Truffle and Ganache for
 smart contract development \cite{consensystools}. Such tools are not specialised for detailed gas usage profiling, and developers
 may potentially miss out on optimisations that may save up to thousands of dollars worth of gas \cite{gaschecker},
 or worse, possibly render a contract call unusable due to reaching the gas limits of each block \cite{governmentalstuck}.
-Gas optimisation is a step that every developer has to carefully consider when deploying an immutable contract on the blockchain,
+More recently, in the case of the Otherside NFT sales, up to \$100 million in gas could have been saved with a just few lines of optimisations \cite{othersidenft}.
+Clearly, gas optimisation is a step that every developer has to carefully consider when deploying an immutable contract on the blockchain,
 and therefore creating a tool that calculates the gas usage for each bytecode instruction 
 and line of code could greatly enhance and simplify such analysis, not only for 
 smart contracts on the Ethereum blockchain, but also for all EVM compatible chains such as

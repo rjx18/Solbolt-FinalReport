@@ -455,6 +455,27 @@ location = {Vienna, Austria},
 series = {CCS '16}
 }
 
+@article{madmax,
+author = {Grech, Neville and Kong, Michael and Jurisevic, Anton and Brent, Lexi and Scholz, Bernhard and Smaragdakis, Yannis},
+title = {MadMax: Analyzing the out-of-Gas World of Smart Contracts},
+year = {2020},
+issue_date = {October 2020},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {63},
+number = {10},
+issn = {0001-0782},
+url = {https://doi.org/10.1145/3416262},
+doi = {10.1145/3416262},
+abstract = {Ethereum is a distributed blockchain platform, serving as an ecosystem for smart contracts: full-fledged intercommunicating programs that capture the transaction logic of an account. A gas limit caps the execution of an Ethereum smart contract: instructions, when executed, consume gas, and the execution proceeds as long as gas is available.Gas-focused vulnerabilities permit an attacker to force key contract functionality to run out of gas---effectively performing a permanent denial-of-service attack on the contract. Such vulnerabilities are among the hardest for programmers to protect against, as out-of-gas behavior may be uncommon in nonattack scenarios and reasoning about these vulnerabilities is nontrivial.In this paper, we identify gas-focused vulnerabilities and present MadMax: a static program analysis technique that automatically detects gas-focused vulnerabilities with very high confidence. MadMax combines a smart contract decompiler and semantic queries in Datalog. Our approach captures high-level program modeling concepts (such as "dynamic data structure storage" and "safely resumable loops") and delivers high precision and scalability. MadMax analyzes the entirety of smart contracts in the Ethereum blockchain in just 10 hours and flags vulnerabilities in contracts with a monetary value in billions of dollars. Manual inspection of a sample of flagged contracts shows that 81% of the sampled warnings do indeed lead to vulnerabilities.},
+journal = {Commun. ACM},
+month = {sep},
+pages = {87–95},
+numpages = {9}
+}
+
+
+
 @INPROCEEDINGS{loopanalysis,
   author={Lokuciejewski, P. and Cordes, D. and Falk, H. and Marwedel, P.},
   booktitle={2009 International Symposium on Code Generation and Optimization}, 
@@ -471,6 +492,14 @@ series = {CCS '16}
   year      = {2018},
   url       = {https://www.research-collection.ethz.ch/bitstream/handle/20.500.11850/312914/TMeineOrdnerMaster-ArbeitenHS18Signer_Christopher.pdf},
 }
+
+@article{othersidenft,
+  author    = {Liam Wright},
+  title     = {BAYC Otherside sales cost \$100M in gas fees unnecessarily due to badly optimized code},
+  year      = {2022},
+  url       = {https://cryptoslate.com/100m-in-bayc-otherside-gas-fees-wasted-due-to-badly-optimized-code}
+}
+
 
 @misc{visualgas_timedcrowdsale,
   author = {Christopher Signer},

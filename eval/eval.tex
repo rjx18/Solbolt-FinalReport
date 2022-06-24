@@ -63,13 +63,13 @@ After running the testing pipeline on a sufficient number of smart contracts, we
 results using several methods. First, we took the mean gas estimation accuracy and
 coverage achieved for each contract, and plotted a violin graph representing the distribution
 of data across all smart contracts. We also plotted a histogram of all functions grouped by their
-mean gas estimation accuracy, and compared this with results from previous literature.
+their mean accuracy of predicted gas over concrete gas, and compared this with results from previous literature.
 
 Next, for all smart contracts analysed, we again plotted a violin
 graph of mean gas estimation accuracy, but instead grouped them based on the coverage achieved, so
 as to observe any correlations between the two. Similarly, this was also done for each transaction,
 plotting the mean gas estimation accuracy as a violin graph but grouping them based on their 
-concrete gas costs.
+``gas class" as mentioned before.
 
 Finally, we plotted a histogram of the number of counts of successful executions, together with 
 the counts of various errors encountered, to understand the robustness of the tool under real-world
@@ -194,7 +194,7 @@ by every transaction is not a trivial task, as each this depends on the exact st
 as well as the parameters given. However, the results also show that the
 median gas estimation accuracy for gas classes ranging from 10,000 gas units to 500,000 gas units,
 which cover the vast majority (94.4\%) of all transactions tested,
-are still relatively reasonable, ranging from 40.6\% to 204.1\% of the concrete gas costs. 
+are still relatively reasonable, ranging from an mean of 40.6\% to 204.1\% of the concrete gas costs. 
 We believe that this makes the gas estimation from \textcolor{NavyBlue}{\textsc{Solbolt}} still insightful for developers.
 Developers can also tweak the limits of the symbolic executor to match what is expected
 from their functions, which can potentially produce more accurate estimates.

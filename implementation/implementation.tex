@@ -16,7 +16,7 @@ key features, with reference to a summary graphic shown in Figure \ref{fig:solbo
   \label{fig:solbolt_summary}
 \end{sidewaysfigure}
 
-The tool supports the compilation of contracts written in Solidity version 0.4.10 to 0.8.13,
+The tool supports the compilation of contracts written in Solidity version 0.4.17 to 0.8.13,
 as well as support for EVM version from \texttt{homestead} to \texttt{berlin}. This is, to
 our knowledge, the most up-to-date and widest available compiler support for any 
 Solidity gas analysis tool so far. The user also has the option to enable optimisation, as
@@ -158,7 +158,7 @@ making use of relevant data in the payload, as seen in Listing \ref{lst:solbolt_
 \end{lstlisting}
 
 This \texttt{reducer} is called by the \texttt{Provider}, which lives near the root of
-the React DOM, above all components that wish to use the context. The class then exports
+the React DOM, above all of the components that wish to use the context. The class then exports
 hooks that can be easily used by any component that require the accessing or updating 
 the contract state, such as \texttt{useContract}, \texttt{useUpdateContract}, and so on.
 
@@ -288,7 +288,7 @@ global state is updated with the latest gas costs, but before the PC is
 incremented.
 
 For every instruction, at the gas hook, 
-the plugin runs the following pseudo-code in Listing \ref{lst:gas_meter_hooks}. 
+the plugin runs the following pseudocode in Algorithm \ref{lst:gas_meter_hooks}. 
 The gas plugin first gets the current gas meter annotation for the current global state,
 and then tries to obtain the source mapping for the current programme counter. If no source
 mapping is found, then the current code is compiler generated, and the plugin will
@@ -298,32 +298,44 @@ seen by the annotation (i.e. at the previous opcode). The plugin then updates th
 by attributing the current gas difference to the source mapping, and updates the last seen
 gas of the annotation to the current gas.
 
-\begin{lstlisting}[language=Pseudocode, caption={Hooks implemented for gas meter plugin}, label={lst:gas_meter_hooks}, basicstyle=\ttfamily\scriptsize]
-class GasMeterPlugin:
-  @add_gas_hook(opcode = any):
-  function gas_meter_hook(state: GlobalState):
-    annotation = get_gas_meter_annotation(state)
-                
-    pc = state.instruction["address"]
-    
-    source_mapping = contract.get_source_mapping(pc)
-    if (contract.has_source(source_mapping.solidity_file_id)):
-        annotation.curr_key = parse_mapping(source_mapping)
-    
-    if annotation.curr_key is not None:
-        gas_difference = get_difference_in_gas(annotation, state.mstate)
-        
-        update_gas_meter_for_key(annotation.gas_meter, annotation.curr_key, gas_difference)
 
-        set_last_seen_gas(annotation, gas_difference)
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+    
+    % Set Function Names
+      \SetKwFunction{FStop}{StopHook}
+      \SetKwFunction{FInstr}{InstrHook}
+    
+    % Write Function with word ``Function''
+      \SetKwProg{Fn}{Gashook}{:}{}
+      \Fn{\FInstr{$state$}}{
+          $a\gets getAnnotation(state)$\;
+          $PC\gets state[instruction]_{address}$\;
 
-  @add_pre_hook(opcode = STOP, REVERT, RETURN):
-  function end_hook(state: GlobalState):
-    annotation = get_gas_meter_annotation(state)
-                
-    for key in annotation.gas_meter.keys():
-      merge(self.current_gas_meter[key], annotation.gas_meter[key])
-\end{lstlisting}
+          $sourceMapping\gets getSourceMapping(PC)$\; 
+
+          \If{$contract.hasSource(sourceMapping_{id}$)}{
+            $a_{key}\gets parseMapping(sourceMapping)$\;
+          }
+
+          \If{$a_{key} \ne None$}{
+            $\mathit{diff}\gets \mathit{getGasDiff}(a_{gasMeter}, \mathit{state})$\;
+            $\mathit{updateGasMeter}(a_{\mathit{gasMeter}}, a_{\mathit{key}}, \mathit{diff})$\;
+            $\mathit{setLastSeenGas}(a, \mathit{diff})$\;
+          }
+      }
+      \;
+
+      \SetKwProg{Fn}{Prehook}{:}{}
+      \Fn{\FStop{$state$}}{
+            $a\gets getAnnotation(state)$\;
+            \ForEach{$k_i \in a_{gasMeter}.keys()$}{
+              $\mathit{merge}(\mathit{globalGasMeter}[k_i], a_{gasMeter}[k_i])$\;
+            }
+      }
+  \caption{Hooks implemented for gas meter plugin}
+  \label{lst:gas_meter_hooks}
+\end{algorithm}
 
 When a transaction ending opcode is encountered, such as \texttt{REVERT}, \texttt{STOP} or \texttt{RETURN},
 the local gas meter is merged into the global gas meter for each source mapping executed in the 
@@ -396,50 +408,64 @@ We can thus make use of this pattern to identify which function the current trac
 at the beginning. However, another challenge is that since the calldata is symbolic, 
 we cannot simply check its value for the function signature called, 
 as this value does not yet exist. Instead, we designed a new
-algorithm for the plugin as outlined by the pseudocode in Listing \ref{lst:function_tracker_hooks}.
+algorithm for the plugin as outlined by the pseudocode in Algorithm \ref{lst:function_tracker_hooks}.
 
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+    
+    % Set Function Names
+      \SetKwFunction{FStop}{StopHook}
+      \SetKwFunction{FPush}{Push4Hook}
+      \SetKwFunction{FJump}{JumpIHook}
+    
+    % Write Function with word ``Function''
+      \SetKwProg{Fn}{Prehook}{:}{}
+      \Fn{\FPush{$state$}}{
+        \If{state is not \texttt{ContractCreationTransaction}}{
+          $a\gets getAnnotation(state)$\;
+          $PushValue\gets state[instruction]_{argument}$\;
 
-\begin{lstlisting}[language=Pseudocode, caption={Hooks implemented for function tracker plugin}, label={lst:function_tracker_hooks}, basicstyle=\ttfamily\scriptsize]
-  class FunctionTrackerPlugin:
-    @add_pre_hook(opcode = PUSH4):
-    function push_hook(state: GlobalState):
-      if not isinstance(state.current_transaction, ContractCreationTransaction):
-        annotation = get_function_tracker_annotation(state)
-        
-        push_value = state.instruction["argument"]
-        
-        if (annotation.current_function == None):
-          fn_signature = parse_signature(push_value)
-      
-          if (fn_signature in contract.signatures and state.code[state.mstate.pc + 1]["opcode"] == "EQ"):
-            fn_name = contract.signatures[fn_signature]
-            annotation.candidate_function = f'{parsed_value}:{fn_name}'
-  
-    @add_post_hook(opcode = JUMPI):
-    function jump_hook(state: GlobalState):
-      if not isinstance(state.current_transaction, ContractCreationTransaction):
-        annotation = get_function_tracker_annotation(state)
+          \If{$a_{func} None$}{
+            $sig\gets parseSig(PushValue)$\;
 
-        if annotation.current_function == None and annotation.candidate_function != None:
-          
-          prev_pc = state.mstate.prev_pc
-          curr_pc = state.mstate.pc
-          
-          did_jump_into_function = prev_pc + 1 != curr_pc
-          
-          if (did_jump_into_function):
-            annotation.current_function = annotation.candidate_function
-          
-          annotation.candidate_function = None
+            \If{$sig \in contract.signatures \wedge state[code][state[pc] + 1]_{opcode} = \texttt{EQ}$}{
+              $a_{candidateFunc}\gets sig$\;
+            }
+          }
+        }
+      }
+      \;
 
-    @add_pre_hook(opcode = STOP, REVERT, RETURN):
-    function end_hook(state: GlobalState):
-      annotation = get_function_tracker_annotation(state)
-              
-      if (annotation.current_function != None):
-        prev_max_gas = global_function_gas_meter.get(annotation.current_function, 0)
-        global_function_gas_meter[annotation.current_function] = max(prev_max_gas, state.mstate.max_gas_used)
-  \end{lstlisting}
+    % Write Function with word ``Def''
+      \SetKwProg{Fn}{Posthook}{:}{}
+      \Fn{\FJump{$state$}}{
+        \If{state is not \texttt{ContractCreationTransaction}}{
+            $a\gets getAnnotation(state)$\;
+
+            \If{$a_{func} = None \wedge a_{candidateFunc} \ne None$}{
+              $didJumpIntoFunc\gets state[prevPC] + 1 \ne state[pc]$\;
+
+              \If{$didJumpIntoFunc$}{
+                $a_{func} \gets a_{candidateFunc}$\;
+              }
+              $a_{candidateFunc} \gets None$\;
+            }
+        }
+      }
+      \;
+
+      \SetKwProg{Fn}{Prehook}{:}{}
+      \Fn{\FStop{$state$}}{
+            $a\gets getAnnotation(state)$\;
+            \If{$a_{func} \ne None$}{
+              $prevMax\gets globalFuncMeter[a_{func}]$\;
+              $globalFuncMeter[a_{func}]\gets max(prevMax, state[gas]_{max})$\;
+            }
+      }
+  \caption{Hooks implemented for function tracker plugin}
+  \label{lst:function_tracker_hooks}
+\end{algorithm}
+
 
 First, for both the \texttt{JUMPI} and \texttt{PUSH4} hooks, we check if the current 
 transaction is the contract creation transaction. Since we only want to collect data 
@@ -477,45 +503,8 @@ gas costs for each loop that was detected. The Mythril engine already has a
 bounded loops strategy, which is able to detect the current number of loop iterations, 
 but we would like to keep track of the gas cost associated with this as well.
 
-To do this, we make use of the following pseudocode in Listing \ref{lst:loop_gas_meter_hooks},
+To do this, we make use of the following pseudocode in Algorithm \ref{lst:loop_gas_meter_hooks},
 as follows.
-
-\begin{lstlisting}[language=Pseudocode, caption={Hooks implemented for loop gas meter plugin}, label={lst:loop_gas_meter_hooks}, basicstyle=\ttfamily\scriptsize]
-  class FunctionTrackerPlugin:
-    @add_pre_hook(opcode = any):
-    function pre_instr_hook(state: GlobalState):
-      if not isinstance(state.current_transaction, ContractCreationTransaction):
-        annotation = get_loop_gas_meter_annotation(state)
-        
-        pc = state.instruction["address"]
-        source_mapping = get_source_mapping(pc)
-
-        if source_mapping is not None:
-          annotation.curr_key = source_mapping
-
-    @add_pre_hook(opcode = JUMPDEST):
-    function jumpdest_hook(state: GlobalState):
-      annotation = get_loop_gas_meter_annotation(state)
-              
-      pc = state.instruction["address"]
-      
-      new_trace_item = TraceItem(pc, state.mstate.max_gas_used)
-      annotation.trace.append(new_trace_item)
-      
-      (loop_head, loop_gas) = find_loop(annotation.trace)
-      
-      if loop_head is not None:
-          source_mapping = contract.get_source_mapping(loop_head, constructor=self.is_creation)
-      
-          is_hidden_loop = is_generated_code(source_mapping)
-              
-          append_gas_to_gas_meter(annotation, loop_head, loop_gas, is_hidden_loop)
-
-    @add_pre_hook(opcode = STOP, REVERT, RETURN):
-      function end_hook(state: GlobalState):
-        annotation = get_loop_gas_meter_annotation(state)
-        merge(global_loop_gas_meter, annotation.loop_gas_meter)
-\end{lstlisting}
 
 First, we set up a pre-instruction hook for all opcodes. This checks if the current transaction 
 is not a contract creation transaction, and then gets the current PC and source mapping of the PC.
@@ -526,7 +515,7 @@ the execution.
 Next, we have a pre-hook for all \texttt{JUMPDEST} opcodes. These opcodes mark the start of every 
 valid jump destination, which the loop body would start with. We first append the annotation
 trace (which keeps a log of the PCs of all \texttt{JUMPDEST} opcodes seen so far) with the 
-current PC, and then call the \texttt{find_loop} function to try to find the PC of the current loop head,
+current PC, and then call the $\mathit{FindLoop}$ function to try to find the PC of the current loop head,
 as well as the current loop iteration gas cost. We will explain in more detail about how this 
 function works in the next section.
 If no loop is found, the loop head retuned is \texttt{None}.
@@ -534,12 +523,70 @@ If a loop is found, we then check if the current loop is a hidden one (where it 
 and the source mapping does not exist). 
 Finally, all of this information is added to the local loop gas meter within the current annotation.
 
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+    
+    % Set Function Names
+      \SetKwFunction{FStop}{StopHook}
+      \SetKwFunction{FInstr}{InstrHook}
+      \SetKwFunction{FJumpDest}{JumpdestHook}
+    
+    % Write Function with word ``Function''
+      \SetKwProg{Fn}{Prehook}{:}{}
+      \Fn{\FInstr{$state$}}{
+        \If{state is not \texttt{ContractCreationTransaction}}{
+          $a\gets getAnnotation(state)$\;
+          $PC\gets state[instruction]_{address}$\;
+
+          \tcc{Try to find a source map for that PC}
+          $sourceMapping\gets getSourceMapping(PC)$\; 
+
+          \If{$sourceMapping\ne None$}{
+            \tcc{Source map exists, so PC is not compiler generated}
+            $a_{key}\gets sourceMapping$\;
+          }
+          
+
+        }
+      }
+      \;
+
+    % Write Function with word ``Def''
+      \SetKwProg{Fn}{Prehook}{:}{}
+      \Fn{\FJumpDest{$state$}}{
+            $a\gets getAnnotation(state)$\;
+
+            $PC\gets state_{instruction}$\;
+
+            $a_{trace}.append({PC, state[gas]_{max}})$\;
+
+            $(foundPC, loopGas) \gets FindLoop(a_{trace}) $\;
+
+            \If{$found \ne None$}{
+              $loopSourceMap \gets getSourceMapping(foundPC)$\;
+
+              $isHidden \gets isGeneratedCode(loopSourceMap)$\;
+
+              $AddToGasMeter(a_{key}, foundPC, loopGas, isHidden)$
+            }
+      }
+      \;
+
+      \SetKwProg{Fn}{Prehook}{:}{}
+      \Fn{\FStop{$state$}}{
+            $a\gets getAnnotation(state)$\;
+            $merge(globalGasMeter, a_{gasMeter}) $\;
+      }
+  \caption{Hooks implemented for loop gas meter plugin}
+  \label{lst:loop_gas_meter_hooks}
+\end{algorithm}
+
 Lastly, we have a pre-hook for all terminating opcodes. Once these opcodes are reached, we
 get the current annotation (and hence local loop gas meter) from the global state, and merge it with
 the global loop gas meter stored in the plugin. The average iteration gas cost for each loop head found
 is then taken, and returned to the user as the result.
 
-Now, we discuss more about how the \texttt{find_loop} function works, which is
+Now, we discuss more about how the $\mathit{FindLoop}$ function works, which is
 the main challenge faced when implementing this plugin. Unlike other loop finding
 algorithms that work on linked lists, our case is unique in that this linked list of 
 the execution trace is
@@ -549,7 +596,48 @@ what paths to proceed towards, as they have not been executed yet and added to t
 Therefore, we have to make use of a pattern matching algorithm that starts from the end of the trace 
 and proceeds backwards, in order to detect a possible loop.
 An outline of its
-pseudocode is provided in Listing \ref{lst:loop_gas_find_loop}. 
+pseudocode is provided in Algorithm \ref{lst:loop_gas_find_loop}. 
+
+\begin{algorithm}[H]
+\SetKwInput{KwInput}{Input}                % Set the Input
+\SetKwInput{KwOutput}{Output}              % set the Output
+\DontPrintSemicolon
+  
+  \KwInput{List of PCs jumped to before, in $trace$}
+  \KwOutput{PC of start of detected loop, and the loop iteration gas}
+
+  $found\gets None$\;
+  $i\gets 0$\;
+  $l\gets len(trace)$\;
+  \ForEach{trace item $t_j \in trace$}
+  {
+    $i\gets j$\;
+    \If{$t_i.pc = t_{l-1}.pc \wedge t_{i+1}.pc = t_{l-2}.pc$}
+    {
+      $found\gets t_i$\;
+      \Break
+    }
+  }
+
+  \If{$found\ne None$}
+    {
+      $loopGas\gets t_{l-2}.gas - found.gas$\;
+      
+      \tcc{Remove trace items to prevent this from finding it again}
+      \ForEach{trace item $t_k \in trace[i-1:l-3]$}
+      {
+        \Delete $t_k$
+      }
+      \Return $found.pc$, $loopGas$
+    }
+  \Else
+  {
+    \Return $None$, $0$
+  }
+  \caption{$FindLoop$ algorithm}
+  \label{lst:loop_gas_find_loop}
+\end{algorithm}
+
 
 Essentially, the
 function works by finding a match of the latest two consecutive \texttt{JUMPDEST} instructions
@@ -567,32 +655,6 @@ by the compiler, it is also able to capture any recursive loops seen during each
 Also, from our testing, the rate of false positives is not high, and can be trivially ignored 
 by the developer.
 
-\begin{lstlisting}[language=Pseudocode, caption={\texttt{find_loop} function}, label={lst:loop_gas_find_loop}, basicstyle=\ttfamily\scriptsize]
-function find_loop(trace):
-  found_loop_head = None
-              
-  loop_head_index = 0
-
-  for loop_head_index in range(len(trace) - 3, -1, -1):
-      if trace[loop_head_index].pc == trace[-2].pc and trace[loop_head_index + 1].pc == trace[-1].pc:
-          found_loop_head = trace[loop_head_index]
-          break
-
-  if found_loop_head:
-      found_pc = found_loop_head.pc
-      found_gas = found_loop_head.gas
-      
-      loop_iteration_gas = trace[-2].gas - found_gas
-      
-      // remove loop from trace to prevent finding it again next time
-      for i in range(len(trace) - 3, loop_head_index - 1, -1):
-          del trace[i]
-      
-      return (found_pc, loop_iteration_gas)
-  else:
-      return (None, 0)
-\end{lstlisting}
-
 To illustrate this, let us examine Figure \ref{fig:loop_gas_example}. Here, we begin at PC 241,
 which is the first PC to be added to the previously empty trace. We next jump to PC 388, which
 for this example is the loop head containing the break condition. This is also appended to the trace.
@@ -602,7 +664,8 @@ which suggests there might be a loop, but because no two consecutive PCs are fou
 does not determine a loop exists so far. We now move to PC 411 again in the second iteration of the loop,
 and now the trace contains $\{241, 388, 411, 388, 411\}$. Here, the algorithm finally finds a match, and 
 correctly determines a loop starting at PC 388. It then calculates the gas difference between the first and 
-second instances of arriving at PC 388, which is the gas cost of one iteration. 
+second instances of arriving at PC 388, which is the gas cost of one iteration, as seen in line 10
+of the pseudocode. 
 
 \begin{figure}[ht] % ’ht’ tells LaTeX to place the figure ’here’ or at the top of the page
   \centering % centers the figure
@@ -643,12 +706,14 @@ second instances of arriving at PC 388, which is the gas cost of one iteration.
 
 
 After this, we delete all trace items seen in the
-interval between the previous loop head and the current PC. In our example, in step 6,
+interval between the previous loop head and the current PC, as seen in lines 11 to 12. In our example, in step 6,
 we can see that the second occurence of $\{388, 411\}$ has been removed.
 This is to prevent any double counting of loop heads. For example, if no trace
 iterms were deleted, the trace at step 6 would instead be $\{241, 388, \textcolor{red}{411, 388, 411, 388}\}$,
 and the algorithm would detect another loop at PC 411. However, this ``loop" was already accounted for
-in the loop starting at PC 388. Finally, the PC of the loop head, and the iteration gas cost is returned.
+in the loop starting at PC 388. 
+At the end of the algorithm, the PC of the loop head and the iteration gas cost are then returned in line 13,
+to be used within the \texttt{JUMPDEST} hook.
 
 \subsection{Loop Mutation Detector Plugin}
 
@@ -677,13 +742,13 @@ While testing the performance of the symbolic execution engine, we noticed that 
 were completed very quickly, but the next transactions took exponentially longer times to symbolically execute.
 This may be because the state space grows exponentially with the number of transactions, but we also suspected
 that because the list of constraints for each state also grows exponentially, this makes solving them much slower.
-In addition, we faced with the challenge where some states were not being executed after the first transaction, 
-because the Z3 solver was timing out from having to solve constraints that were too complex, and it simply marked 
-the state as unreachable. This caused very poor performance for code coverage.
+In addition, we faced with the challenge where some states were not being executed despite being reachable, 
+because the Z3 solver was timing out from solving constraints that were too complex, which resulted in it simply 
+pruning the state altogether. This caused very poor performance for code coverage.
 
 Security verification requires the fact that unreachable states are pruned and not executed, because 
 they are focused on which paths are reachable and which are not. However, for our purpose of gas estimation,
-this is not as important as faster execution times and greater coverage. Being able to quickly calculate the gas usage of a code section 
+this is not as important when compared to faster execution times and greater coverage. Being able to quickly calculate the gas usage of a code section 
 when it is reached is more important to us than knowing exactly if that particular section is reachable or not.
 As such, although useful for pruning away states when the list of constraints is relatively small, the cost of
 running this Z3 solver quickly outweighs its benefits when the list of constraints starts to grow exponentially.

@@ -2,10 +2,10 @@
 \label{chap:related}
 
 Most Solidity analysis tools currently still revolve around programme verification, such 
-as Oyente, Mythril, and Manticore. These tools focus on analysing reachable vulnerable
+as Oyente, Mythril, and Manticore \cite{oyente} \cite{mythril} \cite{manticore}. These tools focus on analysing reachable vulnerable
 states within a smart contract, and checks for common exploits such as reentrancy and unprotected
 self destructs, and ultimately differ from the objectives of this project. MadMax is a
-verification tool that focuses on detecting states that may result in an out of gas error, but
+verification tool that focuses on detecting states that may result in an out of gas error \cite{madmax}, but
 also does not focus on calculating gas bounds for smart contract functions, and therefore
 remains out of scope. Here, we will discuss two related projects, \textsc{Gastap} and VisualGas, which
 both focus on a similar objective of estimating gas costs with two different approaches.
